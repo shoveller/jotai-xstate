@@ -3,13 +3,16 @@ import {createMachine} from "xstate";
 import { inspect } from "@xstate/inspect";
 import {atomWithMachine} from "jotai-xstate";
 import {atom, Provider, useAtomValue, useSetAtom} from "jotai";
+import {useHydrateAtoms} from "jotai/utils";
+import {FC, PropsWithChildren} from "react";
 
 inspect()
 
-const lightMachine= createMachine<string>({
+const initialAtom = atom('녹색')
+const createLightMachine = (initial: string) => createMachine<string>({
     id: 'light',
     // 초기 상태
-    initial: '녹색',
+    initial,
     states: {
         // 상태 1
         녹색: {
@@ -41,7 +44,7 @@ const lightMachine= createMachine<string>({
     }
 })
 
-const lightMachineAtom = atomWithMachine(lightMachine, {
+const lightMachineAtom = atomWithMachine((get) => createLightMachine(get(initialAtom)), {
     devTools: true
 })
 
@@ -60,14 +63,21 @@ const fillAtom = atom((get) => {
 })
 
 function Circle() {
-  const fill = useAtomValue(fillAtom)
-  const send = useSetAtom(lightMachineAtom);
+    const fill = useAtomValue(fillAtom)
+    const send = useSetAtom(lightMachineAtom);
 
-  return (
-    <svg>
-      <circle onClick={() => send('다음')} cx="50" cy="50" r="40" fill={fill} />
-    </svg>
-  );
+    return (
+        <svg>
+            <circle onClick={() => send('다음')} cx="50" cy="50" r="40" fill={fill}/>
+        </svg>
+    );
+}
+
+
+const HydrateAtoms: FC<PropsWithChildren> = ({ children }) => {
+    // initialising on state with prop on render here
+    useHydrateAtoms([[initialAtom, '노란색']])
+    return children
 }
 
 function App() {
@@ -78,6 +88,11 @@ function App() {
       </Provider>
       <Provider>
         <Circle />
+      </Provider>
+      <Provider>
+        <HydrateAtoms>
+          <Circle />
+         </HydrateAtoms>
       </Provider>
     </>
   );
