@@ -47,7 +47,8 @@ test('첫번째 원을 클릭해도 다른 원의 색이 바뀌지 않는다', a
   await expect(circle2).toHaveAttribute("fill", "green");
 })
 
-test('HydrateAtom으로 초깃값을 지정할 수 있다', async ({ page }) => {
-  const circle3 = page.locator("circle").nth(2);
-  await expect(circle3).toHaveAttribute("fill", "yellow");
+test('쿼리스트링을 이용해서 초깃값을 지정할 수 있다', async ({ page }) => {
+  await page.goto(`?color=${encodeURIComponent("노란색")}`);
+  const circle1 = page.locator("circle").first();
+  await expect(circle1).toHaveAttribute("fill", "yellow");
 })

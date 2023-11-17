@@ -2,14 +2,13 @@ import "./App.css";
 import {createMachine} from "xstate";
 import { inspect } from "@xstate/inspect";
 import {atomWithMachine} from "jotai-xstate";
-import {atom, Provider, useAtomValue, useSetAtom} from "jotai";
-import {useHydrateAtoms} from "jotai/utils";
-import {FC, PropsWithChildren} from "react";
+import {atom, Provider, useAtom, useAtomValue, useSetAtom} from "jotai";
+import {FC, useEffect} from "react";
 
 inspect()
 
-const initialAtom = atom('녹색')
 const createLightMachine = (initial: string) => createMachine<string>({
+    predictableActionArguments: true,
     id: 'light',
     // 초기 상태
     initial,
@@ -44,11 +43,12 @@ const createLightMachine = (initial: string) => createMachine<string>({
     }
 })
 
-const lightMachineAtom = atomWithMachine((get) => createLightMachine(get(initialAtom)), {
+const lightMachineAtomAtom = atom(atomWithMachine(createLightMachine("녹색"), {
     devTools: true
-})
+}))
 
 const fillAtom = atom((get) => {
+    const lightMachineAtom = get(lightMachineAtomAtom)
     const state = get(lightMachineAtom).value;
 
     if (state === '녹색') {
@@ -62,8 +62,14 @@ const fillAtom = atom((get) => {
     return 'yellow'
 })
 
-function Circle() {
+const Circle: FC<{ color?: '녹색' | '파란색' | '노란색' }> = ({ color = '녹색' }) => {
     const fill = useAtomValue(fillAtom)
+    const [lightMachineAtom, setLightMachineAtom] = useAtom(lightMachineAtomAtom)
+    useEffect(() => {
+        setLightMachineAtom(atomWithMachine(createLightMachine(color), {
+            devTools: true
+        }))
+    }, [color, setLightMachineAtom]);
     const send = useSetAtom(lightMachineAtom);
 
     return (
@@ -73,26 +79,16 @@ function Circle() {
     );
 }
 
-
-const HydrateAtoms: FC<PropsWithChildren> = ({ children }) => {
-    // initialising on state with prop on render here
-    useHydrateAtoms([[initialAtom, '노란색']])
-    return children
-}
-
 function App() {
+  const color = new URL(location.href).searchParams.get('color') as '녹색' | '파란색' | '노란색'
+
   return (
     <>
       <Provider>
-        <Circle />
+        <Circle color={color} />
       </Provider>
       <Provider>
         <Circle />
-      </Provider>
-      <Provider>
-        <HydrateAtoms>
-          <Circle />
-         </HydrateAtoms>
       </Provider>
     </>
   );
