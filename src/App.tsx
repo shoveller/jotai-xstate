@@ -2,7 +2,7 @@ import "./App.css";
 import {createMachine} from "xstate";
 import { inspect } from "@xstate/inspect";
 import {atomWithMachine} from "jotai-xstate";
-import {atom, useAtomValue, useSetAtom} from "jotai";
+import {atom, Provider, useAtomValue, useSetAtom} from "jotai";
 
 inspect()
 
@@ -59,7 +59,7 @@ const fillAtom = atom((get) => {
     return 'yellow'
 })
 
-function App() {
+function Circle() {
   const fill = useAtomValue(fillAtom)
   const send = useSetAtom(lightMachineAtom);
 
@@ -67,6 +67,19 @@ function App() {
     <svg>
       <circle onClick={() => send('다음')} cx="50" cy="50" r="40" fill={fill} />
     </svg>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <Provider>
+        <Circle />
+      </Provider>
+      <Provider>
+        <Circle />
+      </Provider>
+    </>
   );
 }
 
