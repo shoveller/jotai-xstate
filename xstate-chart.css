@@ -1,0 +1,26 @@
+iframe[data-xstate] {
+    width: 100vw;
+    height: 50vh;
+    border: 0;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+}
+
+@media (max-width: 640px) {
+    iframe[data-xstate] {
+        width: 150vw;
+        height: 75vh;
+        transform: scale(0.666666666);
+        transform-origin: left bottom;
+    }
+}
+
+@media (max-width: 427px) {
+    iframe[data-xstate] {
+        width: 200vw;
+        height: 100vh;
+        transform: scale(0.5);
+        transform-origin: left bottom;
+    }
+}
